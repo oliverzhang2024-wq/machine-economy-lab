@@ -119,7 +119,15 @@ def evaluate(run_id: str, wall_seconds: float | None = None):
         raise ValueError(f'Run not found: {run_id}')
     meta=json.loads(meta_path.read_text())
     task_id=meta['task_id']
-    grades=grader_result(task_id, run_dir/'workspace')
+    status=meta.get('status','prepared')
+    failed_to_execute = status.startswith('agent_failed_exit_') or status == 'agent_timeout'
+    if failed_to_execute:
+        # A Codex launch/auth/timeout error is NOT evidence of incorrect agent code.
+        grades={'tests_run':None, 'tests_passed':None,
+                'test_output':f'NOT GRADED: Codex did not complete successfully ({status}).\n'
+                              'Inspect codex_stderr.txt and codex_events.jsonl for the underlying error.\n'}
+    else:
+        grades=grader_result(task_id, run_dir/'workspace')
     (run_dir/'grader_output.txt').write_text(grades['test_output'],encoding='utf-8')
     u=usage_from_events(run_dir/'codex_events.jsonl')
     record={k:None for k in FIELDS}
@@ -135,8 +143,12 @@ def evaluate(run_id: str, wall_seconds: float | None = None):
     # or hypothetical task prices. There is no revenue in this synthetic benchmark.
     (run_dir/'result.json').write_text(json.dumps(record,indent=2)+'\n')
     refresh_csv()
-    print(f"{run_id}: {'PASS' if grades['tests_passed'] else 'FAIL'} "
-          f"({grades['tests_run'] or 0} grader tests)")
+    if failed_to_execute:
+        print(f'{run_id}: AGENT EXECUTION ERROR ({status}); task was NOT graded')
+        print(f'Diagnostics: {run_dir/"codex_stderr.txt"} and {run_dir/"codex_events.jsonl"}')
+    else:
+        print(f"{run_id}: {'PASS' if grades['tests_passed'] else 'FAIL'} "
+              f"({grades['tests_run'] or 0} grader tests)")
     print(f"Grader: {run_dir/'grader_output.txt'}")
     print(f"Ledger: {RESULTS}")
     return grades['tests_passed']
