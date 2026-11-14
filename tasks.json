@@ -1,0 +1,38 @@
+[
+  {
+    "task_id": "csv_export",
+    "title": "Reliable CSV export",
+    "complexity": "easy",
+    "hypothetical_contract_usd": 15
+  },
+  {
+    "task_id": "usage_billing",
+    "title": "Metered inference billing",
+    "complexity": "medium",
+    "hypothetical_contract_usd": 25
+  },
+  {
+    "task_id": "rate_limiter",
+    "title": "Per-user sliding-window rate limiter",
+    "complexity": "medium",
+    "hypothetical_contract_usd": 20
+  },
+  {
+    "task_id": "transfer_ledger",
+    "title": "Idempotent transfer settlement",
+    "complexity": "medium",
+    "hypothetical_contract_usd": 30
+  },
+  {
+    "task_id": "capacity_scheduler",
+    "title": "Least-cost compute-job allocation",
+    "complexity": "medium",
+    "hypothetical_contract_usd": 25
+  },
+  {
+    "task_id": "webhook_reconciliation",
+    "title": "Out-of-order webhook reconciliation",
+    "complexity": "medium",
+    "hypothetical_contract_usd": 20
+  }
+]
